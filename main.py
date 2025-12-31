@@ -5,6 +5,7 @@ import multiprocessing
 import time
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 def calculate_hash(file_path: str, algorithm: str) -> str:
     """计算文件的指定算法Hash值（仅支持sha256和md5）"""
@@ -112,65 +113,93 @@ def record_results(queue: multiprocessing.Queue, output_file: str):
         json.dump(results, f, indent=2)
     print(f"Results written to {output_file}")
 
+def process_single_file(args):
+    """处理单个文件，返回结果"""
+    file_path, = args
+    try:
+        file_name = os.path.basename(file_path)
+        file_ext = os.path.splitext(file_name)[1] or "unknown"
+        sha256 = calculate_hash(file_path, 'sha256')
+        md5 = calculate_hash(file_path, 'md5')
+        return {
+            "name": file_name,
+            "type": file_ext,
+            "sha256": sha256,
+            "md5": md5
+        }
+    except Exception as e:
+        print(f"Error processing file {file_path}: {str(e)}")
+        return None
+
 def main():
     """主程序入口"""
     # 配置参数
     folder_path = "L:\动物行为学"  # 替换为您的文件夹路径
     output_json = "test.json"
-    
+
     # 验证文件夹路径
     if not os.path.isdir(folder_path):
         raise ValueError(f"Invalid folder path: {folder_path}")
-    
-    # 创建进程间队列
-    queue = multiprocessing.Queue()
-    
-    # 启动记录进程
-    recorder = multiprocessing.Process(
-        target=record_results, 
-        args=(queue, output_json)
-    )
-    recorder.start()
-    
-    # 处理文件夹（第一层级）
-    process_folder(folder_path, queue)
-    
+
+    results = []
+    start_time = time.time()
+
+    # 处理文件夹（第一层级）- 计算文件夹哈希
+    folder_hash = process_single_file((folder_path,))
+    if folder_hash:
+        folder_hash["type"] = "folder"
+        folder_hash["name"] = os.path.basename(folder_path)
+        results.append(folder_hash)
+        print(f"Folder: {folder_hash['name']}")
+        print(f"  SHA256: {folder_hash['sha256'][:16]}...")
+        print(f"  MD5: {folder_hash['md5'][:16]}...")
+
     # 获取第一层级文件列表
     file_paths = []
     for item in os.listdir(folder_path):
         item_path = os.path.join(folder_path, item)
         if os.path.isfile(item_path):
             file_paths.append(item_path)
-    
-    # 启动多进程计算
+
+    total_files = len(file_paths)
+    processed_count = 0
+
+    print(f"\nTotal files to process: {total_files}\n")
+
+    # 使用ProcessPoolExecutor处理文件
     if file_paths:
-        num_processes = min(multiprocessing.cpu_count(), 8)  # 限制最大进程数
-        chunk_size = max(1, len(file_paths) // num_processes)
-        
-        processes = []
-        for i in range(num_processes):
-            start = i * chunk_size
-            end = min((i + 1) * chunk_size, len(file_paths))
-            chunk = file_paths[start:end]
-            
-            p = multiprocessing.Process(
-                target=process_file, 
-                args=(chunk, queue) if isinstance(chunk, list) else (chunk, queue)
-            )
-            p.start()
-            processes.append(p)
-        
-        # 等待所有计算进程完成
-        for p in processes:
-            p.join()
-    
-    # 发送结束标记
-    queue.put(None)
-    
-    # 等待记录进程完成
-    recorder.join()
-    
-    print("All processing completed successfully!")
+        num_processes = min(multiprocessing.cpu_count(), 8)
+
+        with ProcessPoolExecutor(max_workers=num_processes) as executor:
+            # 提交所有任务
+            futures = {executor.submit(process_single_file, (fp,)): fp for fp in file_paths}
+
+            # 使用as_completed获取结果并显示进度条
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    results.append(result)
+
+                processed_count += 1
+                progress = processed_count / total_files
+                bar_length = 40
+                filled_length = int(bar_length * progress)
+                bar = '█' * filled_length + '░' * (bar_length - filled_length)
+                percent = progress * 100
+
+                # 清除行并重新绘制进度条
+                print(f'\r进度: |{bar}| {percent:5.1f}% ({processed_count}/{total_files})', end='', flush=True)
+
+        print()  # 换行
+
+    # 写入JSON文件
+    with open(output_json, 'w') as f:
+        json.dump(results, f, indent=2)
+    print(f"\nResults written to {output_json}")
+
+    elapsed_time = time.time() - start_time
+    print(f"\nAll processing completed successfully!")
+    print(f"Total time: {elapsed_time:.2f}s | Files: {total_files} | Speed: {total_files/elapsed_time:.2f} files/s")
 
 if __name__ == "__main__":
     main()
