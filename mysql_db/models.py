@@ -38,3 +38,19 @@ class ItemHashResult(Base):
 
     def __repr__(self):
         return f"ItemHashResult({self.name}, {self.type}, {self.size}, {self.sha1}, {self.sha256}, {self.md5}, {self.other_hash_info})"
+
+class SpecialFolderList(Base):
+    '''
+    特殊文件夹列表
+    args:
+        name: 特殊文件夹名称
+        type: 特殊文件夹类型
+        size: 特殊文件夹大小
+    '''
+    __tablename__ = "special_folder_list"
+    p_key: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255), index=True)
+    type: Mapped[str] = mapped_column(String(10))
+    size: Mapped[int] = mapped_column(Integer)
+    create_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    update_at: Mapped[datetime] = mapped_column(server_onupdate=func.now(), nullable=True)

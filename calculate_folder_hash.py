@@ -31,12 +31,14 @@ class CalculateFolderHash:
             return HashResult(status='big_folder', info=HashInfo(name=self.folder_path.name, type='folder', size=0, hash_info={}), message='文件加下小文件过多,请人工处理')
         sorted_file_path = sorted(all_file_list)
         hash_result = {}
+        size = 0
         for alg in self.algorithm:
             hash_obj = hashlib.new(alg)
             for file_path in tqdm(sorted_file_path, desc=f'{self.folder_path.name} Hashing files with {alg}'):
                 hash_obj.update(calculate_file_hash_base(file_path, alg).encode())
-            hash_result[alg] = hash_obj.hexdigest().upper()
-        return HashResult(status='success', info=HashInfo(name=self.folder_path.name, type='folder', size=self.folder_path.stat().st_size, hash_info=hash_result))
+                size += pathlib.Path(file_path).stat().st_size
+        hash_result[alg] = hash_obj.hexdigest().upper()
+        return HashResult(status='success', info=HashInfo(name=self.folder_path.name, type='folder', size=size, hash_info=hash_result))
     
     def __call__(self,hash_params: HashParams) -> HashResult:
         self.folder_path = hash_params.folder_path

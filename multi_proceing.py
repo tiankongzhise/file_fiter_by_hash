@@ -36,22 +36,28 @@ def saver(queue):
             if not isinstance(item, ItemHashResult):
                 logger.error(f"item must be ItemHashResult, but got {type(item)}")
                 raise ValueError(f"item must be ItemHashResult, but got {type(item)}")
+            item_name = item.name
+            item_sha1 = item.sha1
+            item_sha256 = item.sha256
+            item_md5 = item.md5
             save_result = save_item_hash_result(item)
             if save_result:
-                logger.info(f"{item.name} 保存哈希结果成功,sha1:{item.sha1},sha256:{item.sha256},md5:{item.md5}")
-            time.sleep(1)
+                logger.info(
+                    f"{item_name} 保存哈希结果成功,sha1:{item_sha1},sha256:{item_sha256},md5:{item_md5}"
+                )
+            time.sleep(0.1)
         except Exception as e:  # 只捕获业务异常即可
             logger.error(f"saver 发生异常: {e}")
 
 # 生产者-生产数据进程（你的业务逻辑，未修改）
 def producer(queue):
     logger = get_logger()
-    test_data = create_test_data(100)
+    test_data = create_test_data(20)
     logger.info(f"producer 生产 {len(test_data)} 条测试数据")
     logger.info('开始生产数据')
     for item in test_data:
         queue.put(item)
-        time.sleep(random.uniform(0, 0.5))
+        time.sleep(1)
     logger.info('生产数据完成')
     queue.put(None)  # 发送哨兵值，通知消费者退出
 
