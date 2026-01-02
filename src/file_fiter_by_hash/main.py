@@ -1,8 +1,7 @@
 import pathlib
 import json
-from calculate_folder_hash import calculate_folder_hash
-from calculate_hash import calculate_file_hash
-from schmeas import HashParams, HashResult
+from .calculate_hash import calculate_folder_hash, calculate_file_hash
+from .schmeas import HashParams, HashResult
 from tqdm import tqdm
 
 

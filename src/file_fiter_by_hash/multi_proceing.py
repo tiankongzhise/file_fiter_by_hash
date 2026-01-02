@@ -1,9 +1,9 @@
 from multiprocessing import Process
 from multiprocessing import Manager  # ✅ 修复1：直接导入原生Manager，无需注册
-from mysql_db.save_result import save_item_hash_result
-from mysql_db.models import ItemHashResult
-from mysql_db.init_db import reset_db
-from logger import get_logger
+from .mysql_db.save_result import save_item_hash_result
+from .mysql_db.models import ItemHashResult
+from .mysql_db.init_db import reset_db
+from .logger import get_logger
 import random
 import time
 

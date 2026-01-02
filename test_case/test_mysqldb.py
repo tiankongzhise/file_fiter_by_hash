@@ -9,10 +9,10 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 
-from mysql_db.models import ItemHashResult
-from mysql_db.save_result import save_item_hash_result
-from mysql_db.init_db import get_db_engine,reset_db
-from mysql_db.query_item import query_item_by_hash
+from src.file_fiter_by_hash.mysql_db.models import ItemHashResult
+from src.file_fiter_by_hash.mysql_db.save_result import save_item_hash_result
+from src.file_fiter_by_hash.mysql_db.init_db import get_db_engine,reset_db
+from src.file_fiter_by_hash.mysql_db.query_item import query_item_by_hash
 from sqlalchemy.orm import Session
 import datetime
 

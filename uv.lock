@@ -22,7 +22,7 @@ wheels = [
 [[package]]
 name = "file-fiter-by-hash"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "psycopg2" },
     { name = "pydantic" },
