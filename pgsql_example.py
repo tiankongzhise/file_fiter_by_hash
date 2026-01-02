@@ -13,7 +13,7 @@ def main():
         password=os.getenv("PG_PASSWORD"),
         user=os.getenv("PG_USERNAME"),
         database=os.getenv("PG_DATABASE"),
-        sslmode="require",
+        # sslmode="require",
     )
 
     query_sql = 'SELECT VERSION()'

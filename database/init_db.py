@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from .models import Base
 from dotenv import load_dotenv
 import os
-load_dotenv()
+load_dotenv('aiven.env')
 
 class InitDB:
     _singleton = None
@@ -20,7 +20,11 @@ class InitDB:
         self.engine = None
     
     def init_db(self):
-        DATABASE_URL  = f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}?sslmode={self.sslmode}"   
+        if self.sslmode:
+            DATABASE_URL  = f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}?sslmode={self.sslmode}"   
+        else:
+            DATABASE_URL  = f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
+        print(DATABASE_URL)
         self.engine = create_engine(DATABASE_URL)
         Base.metadata.create_all(self.engine)
         self._singleton = self

@@ -208,3 +208,4 @@ __marimo__/
 
 *.ps1
 /hash_result/
+*.env
