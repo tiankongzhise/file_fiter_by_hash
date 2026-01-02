@@ -1,112 +1,70 @@
-import hashlib
+import pathlib
 import json
-import time
-from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from os import cpu_count
+from calculate_folder_hash import calculate_folder_hash
+from calculate_hash import calculate_file_hash
+from schmeas import HashParams, HashResult
+from tqdm import tqdm
 
-def calculate_hash(file_path: str, algorithm: str) -> str:
-    """计算文件的指定算法Hash值（仅支持sha256和md5）"""
-    if algorithm == 'sha256':
-        hash_func = hashlib.sha256
-    elif algorithm == 'md5':
-        hash_func = hashlib.md5
-    else:
-        raise ValueError(f"Unsupported hash algorithm: {algorithm}")
 
-    hash_obj = hash_func()
-    with open(file_path, 'rb') as f:
-        while True:
-            chunk = f.read(4096)
-            if not chunk:
-                break
-            hash_obj.update(chunk)
-    return hash_obj.hexdigest()
+def get_all_items(folder_path: pathlib.Path) -> list[dict[str, pathlib.Path]]:
+    """获取文件夹下所有文件和子文件夹"""
+    all_items = {"files": [], "dirs": []}
+    for item in folder_path.iterdir():
+        if item.is_file():
+            all_items["files"].append(item)
+        elif item.is_dir():
+            all_items["dirs"].append(item)
+    return all_items
 
-def process_single_file(args):
-    """处理单个文件，返回结果"""
-    file_path, = args
-    try:
-        path = Path(file_path)
-        file_name = path.name
-        file_ext = path.suffix or "unknown"
-        sha256 = calculate_hash(file_path, 'sha256')
-        md5 = calculate_hash(file_path, 'md5')
-        return {
-            "name": file_name,
-            "type": file_ext,
-            "sha256": sha256,
-            "md5": md5
-        }
-    except Exception as e:
-        print(f"Error processing file {file_path}: {str(e)}")
-        return None
 
-def main():
-    """主程序入口"""
-    # 配置参数
-    folder_path = Path("L:\动物行为学")  # 替换为您的文件夹路径
-    output_json = "test.json"
+def save_hash_result(hash_result: HashResult, save_path: pathlib.Path = None):
+    """保存哈希结果到文件"""
+    if save_path is None:
+        save_path = pathlib.Path(r"./hash_result")
+    success_result = save_path / "success.json"
+    error_result = save_path / "err.json"
+    empty_result = save_path / "empty.json"
+    big_folder_result = save_path / "big_folder.json"
 
-    # 验证文件夹路径
-    if not folder_path.is_dir():
-        raise ValueError(f"Invalid folder path: {folder_path}")
+    success_result.parent.mkdir(parents=True, exist_ok=True)
+    error_result.parent.mkdir(parents=True, exist_ok=True)
+    empty_result.parent.mkdir(parents=True, exist_ok=True)
+    big_folder_result.parent.mkdir(parents=True, exist_ok=True)
 
-    results = []
-    start_time = time.time()
+    match hash_result.status:
+        case "success":
+            with open(success_result, "a", encoding="utf-8") as f:
+                json.dump(hash_result.model_dump(), f, ensure_ascii=False, indent=4)
+        case "error":
+            with open(error_result, "a", encoding="utf-8") as f:
+                json.dump(hash_result.model_dump(), f, ensure_ascii=False, indent=4)
+        case "empty":
+            with open(empty_result, "a", encoding="utf-8") as f:
+                json.dump(hash_result.model_dump(), f, ensure_ascii=False, indent=4)
+        case "big_folder":
+            with open(big_folder_result, "a", encoding="utf-8") as f:
+                json.dump(hash_result.model_dump(), f, ensure_ascii=False, indent=4)
+        case _:
+            print(f"Unknown status: {hash_result.status},hash_result:{hash_result}")
+    return True
 
-    # 处理文件夹（第一层级）- 计算文件夹哈希
-    folder_hash = process_single_file((str(folder_path),))
-    if folder_hash:
-        folder_hash["type"] = "folder"
-        folder_hash["name"] = folder_path.name
-        results.append(folder_hash)
-        print(f"Folder: {folder_hash['name']}")
-        print(f"  SHA256: {folder_hash['sha256'][:16]}...")
-        print(f"  MD5: {folder_hash['md5'][:16]}...")
 
-    # 获取第一层级文件列表
-    file_paths = [str(p) for p in folder_path.iterdir() if p.is_file()]
+def main(target_folder: str):
+    folder_path = pathlib.Path(target_folder)
+    all_items = get_all_items(folder_path)
+    print(f"items:{len(all_items['files']) + len(all_items['dirs'])}")
+    for item in tqdm(all_items["files"], desc="files"):
+        hash_result = calculate_file_hash(
+            HashParams(folder_path=item, algorithm=["sha1", "sha256", "md5"])
+        )
+        save_hash_result(hash_result)
+    for item in tqdm(all_items["dirs"], desc="dirs"):
+        hash_result = calculate_folder_hash(
+            HashParams(folder_path=item, algorithm=["sha1", "sha256", "md5"])
+        )
+        save_hash_result(hash_result)
+    print("done")
 
-    total_files = len(file_paths)
-    processed_count = 0
-
-    print(f"\nTotal files to process: {total_files}\n")
-
-    # 使用ProcessPoolExecutor处理文件
-    if file_paths:
-        num_processes = min(cpu_count() or 1, 8)
-
-        with ProcessPoolExecutor(max_workers=num_processes) as executor:
-            # 提交所有任务
-            futures = {executor.submit(process_single_file, (fp,)): fp for fp in file_paths}
-
-            # 使用as_completed获取结果并显示进度条
-            for future in as_completed(futures):
-                result = future.result()
-                if result:
-                    results.append(result)
-
-                processed_count += 1
-                progress = processed_count / total_files
-                bar_length = 40
-                filled_length = int(bar_length * progress)
-                bar = '█' * filled_length + '░' * (bar_length - filled_length)
-                percent = progress * 100
-
-                # 清除行并重新绘制进度条
-                print(f'\r进度: |{bar}| {percent:5.1f}% ({processed_count}/{total_files})', end='', flush=True)
-
-        print()  # 换行
-
-    # 写入JSON文件
-    with open(output_json, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"\nResults written to {output_json}")
-
-    elapsed_time = time.time() - start_time
-    print(f"\nAll processing completed successfully!")
-    print(f"Total time: {elapsed_time:.2f}s | Files: {total_files} | Speed: {total_files/elapsed_time:.2f} files/s")
 
 if __name__ == "__main__":
-    main()
+    main(r"L:\动物行为学")
