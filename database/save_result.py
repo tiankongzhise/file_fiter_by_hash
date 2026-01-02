@@ -1,20 +1,16 @@
-from sqlmodel import Session
-from .init_db import get_db_engine as get_db
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from .init_db import get_db_engine 
+from .models import ItemHashResult
 
-def test_connect():
-    print('test_connect')
-    
-    engine = get_db()
+
+def save_item_hash_result(item_hash_result: ItemHashResult|list[ItemHashResult]):
+    """保存文件哈希结果到数据库"""
+    engine = get_db_engine()
     with Session(engine) as session:
-        query_sql = 'SELECT VERSION()'
-        result = session.exec(query_sql).first()
-        print(result)
-
-
-def test_table_exists():
-    print('test_table_exists')
-    engine = get_db()
-    with Session(engine) as session:
-        query_sql = 'SELECT to_regclass(\'file_hash_result\')'
-        result = session.exec(query_sql).first()
-        print(result)
+        match item_hash_result:
+            case ItemHashResult():
+                session.add(item_hash_result)
+            case list():
+                session.add_all(item_hash_result)
+        session.commit()

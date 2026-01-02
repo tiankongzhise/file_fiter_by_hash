@@ -1,5 +1,5 @@
-from sqlmodel import Session, SQLModel,create_engine
-from .models import FileHashResult
+from sqlalchemy import create_engine
+from .models import Base
 from dotenv import load_dotenv
 import os
 load_dotenv()
@@ -22,7 +22,7 @@ class InitDB:
     def init_db(self):
         DATABASE_URL  = f"postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}?sslmode={self.sslmode}"   
         self.engine = create_engine(DATABASE_URL)
-        SQLModel.metadata.create_all(self.engine)
+        Base.metadata.create_all(self.engine)
         self._singleton = self
 
     def get_engine(self):
@@ -30,11 +30,16 @@ class InitDB:
             self.init_db()
         return self.engine
     
+    def reset_db(self):
+        Base.metadata.drop_all(self.engine)
+        Base.metadata.create_all(self.engine)
 
 def get_db_engine():
-    print('run_init_db')
     init_db = InitDB()
     return init_db.get_engine()
 
 
-
+def reset_db():
+    init_db = InitDB()
+    init_db.get_engine()
+    init_db.reset_db()
