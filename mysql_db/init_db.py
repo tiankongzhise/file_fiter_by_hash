@@ -25,7 +25,7 @@ class InitDB:
         else:
             DATABASE_URL  = f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
         print(DATABASE_URL)
-        self.engine = create_engine(DATABASE_URL)
+        self.engine = create_engine(DATABASE_URL,pool_pre_ping=True)
         Base.metadata.create_all(self.engine)
         self._singleton = self
 
