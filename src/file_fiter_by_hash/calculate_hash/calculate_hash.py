@@ -1,6 +1,6 @@
 import hashlib
 import pathlib
-from schmeas import HashInfo, HashResult, HashParams
+from ..schmeas import HashInfo, HashResult, HashParams
 
 def calculate_file_hash_base(file_path: pathlib.Path|str, algorithm: str = 'sha256') -> str:
     """计算单个文件的哈希值"""
