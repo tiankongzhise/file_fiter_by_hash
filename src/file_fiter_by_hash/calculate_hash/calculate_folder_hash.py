@@ -22,6 +22,16 @@ class CalculateFolderHash:
                 file_path.extend(self.find_files(item))
         return file_path
     
+    def calculate_big_folder_size(self,file_list:list[str]) -> str:
+        """计算大文件夹下所有文件的大小"""
+        size = 0
+        for item in file_list:
+            if pathlib.Path(item).is_file():
+                size += pathlib.Path(item).stat().st_size
+            elif pathlib.Path(item).is_dir():
+                size += self.calculate_big_folder_size(self.find_files(pathlib.Path(item)))
+        return size
+    
     def calculate_hash(self) -> str:
         """计算文件夹下所有文件的哈希值"""
         all_file_list = self.find_files(self.folder_path)
