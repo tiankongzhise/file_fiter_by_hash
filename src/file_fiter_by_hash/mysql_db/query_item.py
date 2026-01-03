@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text, select
 from .init_db import get_db_engine
-from .models import ItemHashResult, SpecialFolderTable
+from .models import ItemHashResult, SpecialFolderTable,TempHashTable
 from ..logger import get_logger
 
 logger = get_logger()
@@ -61,4 +61,28 @@ def get_all_special_folder():
             return result
     except Exception as e:
         logger.error(f"获取所有特殊文件夹名称和大小失败: {e}")
+        return None
+
+def is_temp_hash_table(hash_tag: str=None,name:str=None,size:int=None):
+    """判断哈希标签是否在临时哈希表中"""
+    engine = get_db_engine()
+    try:
+        with Session(engine) as session:
+            if hash_tag is None:
+                stmt = (
+                    select(TempHashTable)
+                    .where(TempHashTable.name == name)
+                    .where(TempHashTable.size == size)
+                )
+            else:
+                stmt = (
+                    select(TempHashTable)
+                    .where(TempHashTable.hash_tag == hash_tag)
+                )
+            result = session.scalars(stmt).one_or_none()
+            if result is None:
+                return False
+            return True
+    except Exception as e:
+        logger.error(f"判断哈希标签是否在临时哈希表中失败: {e}")
         return None

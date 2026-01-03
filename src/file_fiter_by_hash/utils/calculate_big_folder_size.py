@@ -1,5 +1,5 @@
 import pathlib
-def calculate_big_folder_size(file_list:list[str]) -> str:
+def calculate_big_folder_size(file_list:list[str]) -> int:
     """计算给定的文件列表中所有文件的大小，不允许列表内包含文件夹"""
     size = 0
     err_tag = False

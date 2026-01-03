@@ -25,3 +25,19 @@ class HashParams(BaseModel):
         if isinstance(data, dict) and 'algorithm' in data:
             data['algorithm'] = [alg.lower() for alg in data['algorithm']]
         return data
+
+class FileOperationRecord(BaseModel):
+    operation:Literal['remove','delete','zip']
+    source_path:pathlib.Path = Field(description='源文件路径')
+    target_path:pathlib.Path = Field(description='目标文件路径')
+    file_name:str = Field(description='文件名')
+    file_type:Literal['file','folder'] = Field(description='文件类型')
+    hash_info:HashInfo = Field(description='哈希信息')
+    operation_status:Literal['success','fail'] = Field(description='操作状态')
+    error_message:str = Field(default='', description='错误信息')
+
+class TempHashInfo(BaseModel):
+    hash_tag:str = Field(description='哈希标签')
+    name:str = Field(description='文件或文件夹名称')
+    type:Literal['big_folder','folder','file'] = Field(description='文件类型')
+    size:int = Field(description='文件大小')

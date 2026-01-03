@@ -3,6 +3,8 @@ from sqlalchemy.orm import DeclarativeBase,Mapped, mapped_column
 from sqlalchemy import JSON
 from datetime import datetime
 
+from file_fiter_by_hash.utils import operation_recording
+
 class Base(DeclarativeBase):
     pass
 
@@ -49,6 +51,44 @@ class SpecialFolderTable(Base):
     __tablename__ = "special_folder_table"
     p_key: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), index=True)
+    size: Mapped[int] = mapped_column(Integer)
+    create_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    update_at: Mapped[datetime] = mapped_column(server_onupdate=func.now(), nullable=True)
+
+class FileOperationRecordTable(Base):
+    '''
+    文件操作记录
+    args:
+        operation_type: 操作类型
+        file_path: 文件路径
+        file_hash: 文件哈希值
+    '''
+    __tablename__ = "file_operation_record"
+    p_key: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    operation: Mapped[str] = mapped_column(String(10))
+    source_path: Mapped[str] = mapped_column(String(255))
+    target_path: Mapped[str] = mapped_column(String(255))
+    file_name: Mapped[str] = mapped_column(String(255))
+    file_type: Mapped[str] = mapped_column(String(10))
+    hash_info: Mapped[dict] = mapped_column(JSON)
+    operation_status: Mapped[str] = mapped_column(String(10))
+    error_message: Mapped[str] = mapped_column(String(255), default='')
+    create_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    update_at: Mapped[datetime] = mapped_column(server_onupdate=func.now(), nullable=True)
+
+class TempHashTable(Base):
+    '''
+    临时哈希表
+    args:
+        hash_tag: 哈希标签
+        type: 文件类型
+        size: 文件大小
+    '''
+    __tablename__ = "temp_hash_table"
+    p_key: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    hash_tag: Mapped[str] = mapped_column(String(255), index=True)
+    name: Mapped[str] = mapped_column(String(255))
+    type: Mapped[str] = mapped_column(String(10))
     size: Mapped[int] = mapped_column(Integer)
     create_at: Mapped[datetime] = mapped_column(server_default=func.now())
     update_at: Mapped[datetime] = mapped_column(server_onupdate=func.now(), nullable=True)
