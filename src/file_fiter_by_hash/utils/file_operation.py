@@ -1,6 +1,7 @@
 import pathlib
 from ..config.file_config import FileConfig
 from ..logger import get_logger
+import shutil
 
 logger = get_logger()
 
@@ -19,7 +20,12 @@ def move_file_by_pathlib(source_file: pathlib.Path, target_dir:pathlib.Path):
         
         # 3. 核心：拼接【目标文件夹+原文件名】，实现移动
         target_file = target_dir / source_file.name
-        source_file.rename(target_file)
+        
+        # 确保目标路径文件夹路径存在
+        target_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        
+        shutil.move(src= source_file, dst = target_file)
         return True
     except Exception as e:
         return e
@@ -63,7 +69,7 @@ def remove_to_panding_delete(folder_name: str|pathlib.Path):
     '''
     将文件夹移动到待删除文件夹
     '''
-    delete_dir = FileConfig.delete_dir
+    delete_dir = FileConfig.duplicate_dir
     if isinstance(delete_dir, str):
         delete_dir = pathlib.Path(delete_dir)
     if isinstance(folder_name, str):
