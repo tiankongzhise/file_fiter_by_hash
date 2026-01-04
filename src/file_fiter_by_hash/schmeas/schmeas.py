@@ -50,6 +50,8 @@ class LoggerInfo(BaseModel):
     logger_level将会被强制转化为小写，且必须在logger_level_map中
     '''
     logger_level:str = Field(description='日志级别')
+    logger_call_path:str = Field(default='', description='日志调用路径')
+    service_code:str = Field(default='', description='服务代码')
     log_message:str = Field(description='日志消息')
     
     @model_validator(mode='before')

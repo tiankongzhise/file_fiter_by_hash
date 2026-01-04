@@ -1,17 +1,16 @@
 
 import pathlib
-from ..logger import get_logger
+from ..logger import logger
 from ..utils import calculate_big_folder_size,get_all_file_path
 from ..utils.file_operation import remove_to_pending_backup,remove_to_processing,delete_empty_folder,remove_to_panding_delete,remove_to_local_duplicate
 from ..utils.dto import transform_special_folder_list_to_dict
-from ..utils.operation_recording import recoding_file_operation
 from ..mysql_db.query_item import get_all_special_folder,query_item_by_hash,is_temp_hash_table
 from ..calculate_hash import calculate_file_hash,calculate_folder_hash
 
 class FilterFile:
     def __init__(self, file_path: str|pathlib.Path):
         self.file_path = file_path if isinstance(file_path, pathlib.Path) else pathlib.Path(file_path)
-        self.logger = get_logger()
+        self.logger = logger
         self.file_list:list[pathlib.Path] = []
         self.folder_list:list[pathlib.Path] = []
         self.normal_folder_list:list[dict[pathlib.Path,list[pathlib.Path|str]]] = []

@@ -1,5 +1,10 @@
+from modulefinder import test
 from file_fiter_by_hash.logger import logger,query_logger
 
+def test_reset_db():
+    logger.reset_logger_db()
+    logger_info = query_logger()
+    assert len(logger_info) == 0
 
 def test_logger():
     logger.debug('test_logger debug message')
@@ -47,18 +52,33 @@ def test_query_logger_db():
     logger_info = query_logger()
     for log in logger_info:
         print(log)
-    
+def test_query_warning():
+    logger_info = query_logger(logger_level=['warning','error','critical'])
+    for log in logger_info:
+        print(log)
     
 if __name__ == '__main__':
-    test_logger()
-    test_set_logger_level()
-    test_set_logger_attr()
-    logger.set_logger_config(is_call_path=True)
-    logger.set_logger_config(is_persistence=True)
-    logger.set_logger_config(is_print_console=True)
-    logger.debug('debug message')
-    logger.info('info message')
-    logger.warning('warning message')
-    logger.error('error message')
-    logger.critical('critical message')
-    test_query_logger_db()
+    # print(f'-*50 test_reset_db -*50')
+    # test_reset_db()
+    # print(f'-*50 test_logger -*50')
+    # test_logger()
+    # print(f'-*50 test_set_logger_level -*50')
+    # test_set_logger_level()
+    # print(f'-*50 test_set_logger_attr -*50')
+    # test_set_logger_attr()
+    # print(f'-*50 test_false_console_print -*50')
+    # test_false_console_print()
+    # print(f'-*50 test_false_persistence -*50')
+    # test_false_persistence()
+    # print(f'-*50 test_query_logger_model -*50')
+    # logger.set_logger_config(is_call_path=True)
+    # logger.set_logger_config(is_persistence=True)
+    # logger.set_logger_config(is_print_console=True)
+    # logger.debug('debug message')
+    # logger.info('info message')
+    # logger.warning('warning message')
+    # logger.error('error message')
+    # logger.critical('critical message')
+    # print(f'-*50 test_query_logger_db -*50')
+    # test_query_logger_db()
+    test_query_warning()

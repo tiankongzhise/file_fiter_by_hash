@@ -8,6 +8,8 @@ def sql_logger_write(logger_info:LoggerInfo):
     with Session(db_engile) as session:
         logger_table = LoggerTable(
             logger_level=logger_info.logger_level,
+            logger_call_path=logger_info.logger_call_path,
+            service_code=logger_info.service_code,
             log_message=logger_info.log_message
         )
         session.add(logger_table)

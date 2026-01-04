@@ -10,11 +10,11 @@ class InitDB:
             cls._singleton = super().__new__(cls)
         return cls._singleton
     def __init__(self):
+        if self._is_init:
+            return 
         self.engine = None
     
     def init_db(self):
-        if self._is_init:
-            return 
         DATABASE_URL = 'sqllite:///local_sqllite_db.db'
         self.engine = create_engine(DATABASE_URL)
         Base.metadata.create_all(self.engine)

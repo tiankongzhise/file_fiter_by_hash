@@ -1,0 +1,44 @@
+
+logger_service_code = {
+    'L010010011':'日志配置读取成功',
+    'L010010012':'日志配置读取失败',
+    'L020010011':'数据库初始化成功',
+    'L020010012':'数据库初始化失败',
+    'L020020011':'日志数据库写入成功',
+    'L020020012':'日志数据库写入失败',
+}
+calculate_hash_service_code = {
+    'C010010011':'文件hash计算成功',
+    'C010010012':'文件hash计算失败',
+    'C020010011':'文件夹hash计算成功',
+    'C020010012':'文件夹hash计算失败',
+    'C020020011':'超大文件夹,统计文件夹大小成功',
+    'C020020012':'超大文件夹,统计文件夹大小失败',
+    'C020030011':'空文件夹，无需计算'
+}
+file_operation_service_code = {
+    'F010010011':'文件移动成功',
+    'F010010012':'文件移动失败',
+    'F010020011':'文件删除成功',
+    'F010020012':'文件删除失败',
+    'F010030011':'文件压缩成功',
+    'F010030012':'文件压缩失败',
+    'F020010011':'文件夹移动成功',
+    'F020010012':'文件夹移动失败',
+    'F020020011':'文件夹删除成功',
+    'F020020012':'文件夹删除失败',
+    'F020030011':'文件夹压缩成功',
+    'F020030012':'文件夹压缩失败',
+}
+
+all_service_code = {
+    **logger_service_code,
+    **calculate_hash_service_code,
+    **file_operation_service_code,
+}
+
+def get_code_to_mean_code():
+    return {code: mean_code for code, mean_code in all_service_code.items()}
+
+def get_service_code_map():
+    return all_service_code.update(get_code_to_mean_code())

@@ -1,5 +1,5 @@
 import sys
-from .sqlite_db import sql_logger_write
+from .sqlite_db import sql_logger_write,reset_db
 from ..schmeas import LoggerInfo
 from ..config import LoggerConfig
 
@@ -26,6 +26,27 @@ class Logger:
         
         self._is_init = True    
 
+    def _validate_logger_config_value(self,attr_name:str,value:any):
+        if attr_name == 'is_print_console' or attr_name == 'is_persistence':
+            if not isinstance(value, bool):
+                print(f'Logger object attribute {attr_name} must be bool type')
+                return False
+            return True
+        elif attr_name == 'is_call_path':
+            if not isinstance(value, bool):
+                print(f'Logger object attribute {attr_name} must be bool type')
+                return False
+            return True
+        elif attr_name == 'console_logger_level' or attr_name == 'persistence_logger_level':
+            if not isinstance(value, str):
+                print(f'Logger object attribute {attr_name} must be str type')
+                return False
+            if value.lower() not in self.level_map:
+                print(f'Logger object attribute {attr_name} must be in {self.level_map.keys()}')
+                return False
+            return True
+        
+    
     def set_logger_config(self, **kwargs):
         '''设置日志配置 不会对输入进行校验，可以在运行时调整logger的各项设置
         Args:
@@ -39,6 +60,11 @@ class Logger:
             if not hasattr(self, attr_name):
                 print(f'Logger object has no attribute {attr_name}')
                 return None
+            if not self._validate_logger_config_value(attr_name, value):
+                print(f'Logger object attribute {attr_name} value {value} is invalid,nothing will be done')
+                return None
+            if attr_name == 'console_logger_level' or attr_name == 'persistence_logger_level':
+                value = value.lower()
             setattr(self, attr_name, value)
 
     def _is_console_output(self, logger_level:str):
@@ -77,7 +103,7 @@ class Logger:
         func_name = frame.f_code.co_name
         return file_name, line_no, func_name
     
-    def debug(self,message:str):
+    def debug(self,code:str,message:str):
         '''调试日志
         Args:
             message (str): 日志消息
@@ -85,15 +111,16 @@ class Logger:
         Returns:
             None
         '''
+        call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
-            message = f'{file_name}:{line_no}:{func_name} {message}'
+            call_path = f'{file_name}:{line_no}:{func_name}'
         if self._is_console_output('debug'):
-            print(f'DEBUG: {message}')
+            print(f'DEBUG: {call_path}:{message}')
         if self._is_persistence_output('debug'):
-            sql_logger_write(LoggerInfo(logger_level='debug', log_message=message))
+            sql_logger_write(LoggerInfo(logger_level='debug', logger_call_path=call_path, service_code=code, log_message=message))
         
-    def info(self,message:str):
+    def info(self,code:str,message:str):
         '''信息日志
         Args:
             message (str): 日志消息
@@ -101,15 +128,16 @@ class Logger:
         Returns:
             None
         '''
+        call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
-            message = f'{file_name}:{line_no}:{func_name} {message}'
+            call_path = f'{file_name}:{line_no}:{func_name}'
         if self._is_console_output('info'):
-            print(f'INFO: {message}')
+            print(f'INFO: {call_path}:{message}')
         if self._is_persistence_output('info'):
-            sql_logger_write(LoggerInfo(logger_level='info', log_message=message))
+            sql_logger_write(LoggerInfo(logger_level='info', logger_call_path=call_path, service_code=code, log_message=message))
 
-    def warning(self,message:str):
+    def warning(self,code:str,message:str):
         '''警告日志
         Args:
             message (str): 日志消息
@@ -117,15 +145,16 @@ class Logger:
         Returns:
             None
         '''
+        call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
-            message = f'{file_name}:{line_no}:{func_name} {message}'
+            call_path = f'{file_name}:{line_no}:{func_name}'
         if self._is_console_output('warning'):
-            print(f'WARNING: {message}')
+            print(f'WARNING: {call_path}:{message}')
         if self._is_persistence_output('warning'):
-            sql_logger_write(LoggerInfo(logger_level='warning', log_message=message))
+            sql_logger_write(LoggerInfo(logger_level='warning', logger_call_path=call_path, service_code=code, log_message=message))
         
-    def error(self,message:str):
+    def error(self,code:str,message:str):
         '''错误日志
         Args:
             message (str): 日志消息
@@ -133,15 +162,16 @@ class Logger:
         Returns:
             None
         '''
+        call_path = ''  
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
-            message = f'{file_name}:{line_no}:{func_name} {message}'
+            call_path = f'{file_name}:{line_no}:{func_name}'
         if self._is_console_output('error'):
-            print(f'ERROR: {message}')
+            print(f'ERROR: {call_path}:{message}')
         if self._is_persistence_output('error'):
-            sql_logger_write(LoggerInfo(logger_level='error', log_message=message))
+            sql_logger_write(LoggerInfo(logger_level='error', logger_call_path=call_path, service_code=code, log_message=message))
         
-    def critical(self,message:str):
+    def critical(self,code:str,message:str):
         '''严重错误日志
         Args:
             message (str): 日志消息
@@ -149,12 +179,22 @@ class Logger:
         Returns:
             None
         '''
+        call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
-            message = f'{file_name}:{line_no}:{func_name} {message}'
+            call_path = f'{file_name}:{line_no}:{func_name}'
         if self._is_console_output('critical'):
-            print(f'CRITICAL: {message}')
+            print(f'CRITICAL: {call_path}:{message}')
         if self._is_persistence_output('critical'):
-            sql_logger_write(LoggerInfo(logger_level='critical', log_message=message))
-
+            sql_logger_write(LoggerInfo(logger_level='critical', logger_call_path=call_path, service_code=code, log_message=message))
+    def reset_logger_db(self):
+        '''重置数据库中的日志表
+        Args:
+            None
+            
+        Returns:
+            None
+        '''
+        reset_db()
+    
 logger = Logger()
