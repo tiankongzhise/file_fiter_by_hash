@@ -41,3 +41,24 @@ class TempHashInfo(BaseModel):
     name:str = Field(description='文件或文件夹名称')
     type:Literal['big_folder','folder','file'] = Field(description='文件类型')
     size:int = Field(description='文件大小')
+
+class LoggerInfo(BaseModel):
+    '''日志信息
+    args:
+        logger_level: 日志级别
+        log_message: 日志消息
+    logger_level将会被强制转化为小写，且必须在logger_level_map中
+    '''
+    logger_level:str = Field(description='日志级别')
+    log_message:str = Field(description='日志消息')
+    
+    @model_validator(mode='before')
+    @classmethod
+    def model_post_init(cls, data):
+        if isinstance(data, dict) and 'logger_level' in data:
+            from ..config.logger_config import LoggerConfig
+            source_logger_level_input = data['logger_level']
+            data['logger_level'] = data['logger_level'].lower()
+            if data['logger_level'] not in LoggerConfig.logger_level_map:
+                raise ValueError(f'logger_level {source_logger_level_input} is not valid')
+        return data

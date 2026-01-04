@@ -2,8 +2,6 @@ from sqlalchemy import func,String,Integer,UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase,Mapped, mapped_column
 from sqlalchemy import JSON
 from datetime import datetime
-
-
 class Base(DeclarativeBase):
     pass
 
