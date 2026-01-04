@@ -7,6 +7,7 @@ logger_service_code = {
     'L020020011':'日志数据库写入成功',
     'L020020012':'日志数据库写入失败',
 }
+
 calculate_hash_service_code = {
     'C010010011':'文件hash计算成功',
     'C010010012':'文件hash计算失败',
@@ -16,7 +17,14 @@ calculate_hash_service_code = {
     'C020020012':'超大文件夹,统计文件夹大小失败',
     'C020030011':'空文件夹，无需计算'
 }
+
 file_operation_service_code = {
+    'F000010011':'移动操作成功，不区分文件或文件夹',
+    'F000010012':'移动操作失败，不区分文件或文件夹',
+    'F000020011':'删除操作成功，不区分文件或文件夹',
+    'F000020012':'删除操作失败，不区分文件或文件夹',
+    'F000030011':'压缩操作成功，不区分文件或文件夹',
+    'F000030012':'压缩操作失败，不区分文件或文件夹',
     'F010010011':'文件移动成功',
     'F010010012':'文件移动失败',
     'F010020011':'文件删除成功',
@@ -27,6 +35,7 @@ file_operation_service_code = {
     'F020010012':'文件夹移动失败',
     'F020020011':'文件夹删除成功',
     'F020020012':'文件夹删除失败',
+    'F020020022':'由于业务原因删除文件夹失败',
     'F020030011':'文件夹压缩成功',
     'F020030012':'文件夹压缩失败',
 }
@@ -42,3 +51,14 @@ def get_code_to_mean_code():
 
 def get_service_code_map():
     return all_service_code.update(get_code_to_mean_code())
+
+def get_service_code(service_event: str) -> str:
+    code = get_service_code_map().get(service_event)
+    if not code:
+        raise ValueError(f'服务事件 {service_event} 没有对应的服务代码')
+
+def get_service_code_mean(service_code: str) -> str:
+    mean_code = get_service_code_map().get(service_code)
+    if not mean_code:
+        raise ValueError(f'服务代码 {service_code} 没有对应的服务事件')
+    return mean_code

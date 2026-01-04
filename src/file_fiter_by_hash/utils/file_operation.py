@@ -1,9 +1,10 @@
 import pathlib
-from ..config.file_config import FileConfig
-from ..logger import get_logger
 import shutil
+from ..config.file_config import FileConfig
+from ..config.service_code import get_service_code
+from ..logger import logger
 
-logger = get_logger()
+
 
 def move_file_by_pathlib(source_file: pathlib.Path, target_dir:pathlib.Path):
     """
@@ -43,10 +44,10 @@ def remove_to_pending_backup(folder_name: str|pathlib.Path):
         folder_name = pathlib.Path(folder_name)
     move_result = move_file_by_pathlib(folder_name, backup_dir)
     if move_result is True:
-        logger.info(f"文件夹 {folder_name} 已成功移动到备份文件夹 {backup_dir}")
+        logger.info(code=get_service_code('移动操作成功，不区分文件或文件夹'),message=f"文件夹 {folder_name} 已成功移动到备份文件夹 {backup_dir}")
         return True
     else:
-        logger.error(f"文件夹 {folder_name} 移动到备份文件夹 {backup_dir} 失败 → {move_result}")
+        logger.error(code=get_service_code('移动操作失败，不区分文件或文件夹'),message=f"文件夹 {folder_name} 移动到备份文件夹 {backup_dir} 失败 → {move_result}")
         return False
 
 def remove_to_processing(folder_name: str|pathlib.Path):
@@ -60,10 +61,10 @@ def remove_to_processing(folder_name: str|pathlib.Path):
         folder_name = pathlib.Path(folder_name)
     move_result = move_file_by_pathlib(folder_name, processing_dir)
     if move_result is True:
-        logger.info(f"文件夹 {folder_name} 已成功移动到待人工处理文件夹 {processing_dir}")
+        logger.info(code=get_service_code('移动操作成功，不区分文件或文件夹'),message=f"文件夹 {folder_name} 已成功移动到待人工处理文件夹 {processing_dir}")
         return True
     else:
-        logger.error(f"文件夹 {folder_name} 移动到待人工处理文件夹 {processing_dir} 失败 → {move_result}")
+        logger.error(code=get_service_code('移动操作失败，不区分文件或文件夹'),message=f"文件夹 {folder_name} 移动到待人工处理文件夹 {processing_dir} 失败 → {move_result}")
         return False
 def remove_to_panding_delete(folder_name: str|pathlib.Path):
     '''
@@ -76,10 +77,10 @@ def remove_to_panding_delete(folder_name: str|pathlib.Path):
         folder_name = pathlib.Path(folder_name)
     move_result = move_file_by_pathlib(folder_name, delete_dir)
     if move_result is True:
-        logger.info(f"文件夹 {folder_name} 已成功移动到待删除文件夹 {delete_dir}")
+        logger.info(code=get_service_code('移动操作成功，不区分文件或文件夹'),message=f"文件夹 {folder_name} 已成功移动到待删除文件夹 {delete_dir}")
         return True
     else:
-        logger.error(f"文件夹 {folder_name} 移动到待删除文件夹 {delete_dir} 失败 → {move_result}")
+        logger.error(code=get_service_code('移动操作失败，不区分文件或文件夹'),message=f"文件夹 {folder_name} 移动到待删除文件夹 {delete_dir} 失败 → {move_result}")
         return False
 
 def delete_empty_folder(folder_name:str|pathlib.Path):
@@ -90,10 +91,10 @@ def delete_empty_folder(folder_name:str|pathlib.Path):
         folder_name = pathlib.Path(folder_name)
     if folder_name.exists() and folder_name.is_dir() and not any(folder_name.iterdir()):
         folder_name.rmdir()
-        logger.info(f"空文件夹 {folder_name} 已成功删除")
+        logger.info(code=get_service_code('文件夹删除成功'),message=f"空文件夹 {folder_name} 已成功删除")
         return True
     else:
-        logger.error(f"文件夹 {folder_name} 不是空文件夹，无法删除")
+        logger.error(code=get_service_code('由于业务原因删除文件夹失败'),message=f"文件夹 {folder_name} 不是空文件夹，无法删除")
         return False
 
 def remove_to_local_duplicate(folder_name: str|pathlib.Path):
@@ -107,8 +108,8 @@ def remove_to_local_duplicate(folder_name: str|pathlib.Path):
         folder_name = pathlib.Path(folder_name)
     move_result = move_file_by_pathlib(folder_name, delete_dir)
     if move_result is True:
-        logger.info(f"文件夹 {folder_name} 已成功移动到本地待删除文件夹 {delete_dir}")
+        logger.info(code=get_service_code('移动操作成功，不区分文件或文件夹'),message=f"文件夹 {folder_name} 已成功移动到本地待删除文件夹 {delete_dir}")
         return True
     else:
-        logger.error(f"文件夹 {folder_name} 移动到本地待删除文件夹 {delete_dir} 失败 → {move_result}")
+        logger.error(code=get_service_code('移动操作失败，不区分文件或文件夹'),message=f"文件夹 {folder_name} 移动到本地待删除文件夹 {delete_dir} 失败 → {move_result}")
         return False

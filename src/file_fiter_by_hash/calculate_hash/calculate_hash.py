@@ -1,6 +1,8 @@
 import hashlib
 import pathlib
 from ..schmeas import HashInfo, HashResult, HashParams
+from ..logger import logger
+from ..config.service_code import get_service_code
 
 def calculate_file_hash_base(file_path: pathlib.Path|str, algorithm: str = 'sha256') -> str:
     """计算单个文件的哈希值"""
@@ -16,8 +18,11 @@ def calculate_file_hash(params: HashParams) -> HashResult:
         hash_result = {}
         for alg in params.algorithm:
             hash_result[alg] = calculate_file_hash_base(params.folder_path, alg)
+            logger.info(code=get_service_code('文件hash计算成功'), message=f'文件 {params.folder_path.name} 哈希值 {alg} 计算完成，哈希值为 {hash_result[alg]}')
     except Exception as e:
         return HashResult(status='error', info=HashInfo(name=params.folder_path.name, type='file', algorithm=params.algorithm, size=params.folder_path.stat().st_size, hash_info={}), error_message=str(e))
+        logger.error(code=get_service_code('文件hash计算失败'), message=f'文件 {params.folder_path.name} 哈希值 {params.algorithm} 计算失败，错误信息为 {str(e)}')
+    
     return HashResult(status='success', info=HashInfo(name=params.folder_path.name, type='file', algorithm=params.algorithm, size=params.folder_path.stat().st_size, hash_info=hash_result))
 
 

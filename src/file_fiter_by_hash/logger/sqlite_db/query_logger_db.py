@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select,text
 from .init_db import get_db_engine
 from .models import LoggerTable
 
@@ -10,9 +10,15 @@ def query_logger(
     service_code: str | None = None,
     logger_level: str | list[str] | None = None,
     logger_message: str | None = None,
+    sql_text:str | None = None,
 ):
     db_engile = get_db_engine()
     with Session(db_engile) as session:
+        if sql_text:
+            stmt = text(sql_text)
+            result = session.scalars(stmt).all()
+            return result
+        
         stmt = select(LoggerTable)
         if (
             logger_time is None
