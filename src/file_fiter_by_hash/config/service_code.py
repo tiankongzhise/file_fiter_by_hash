@@ -1,3 +1,4 @@
+from copy import deepcopy
 
 logger_service_code = {
     'L010010011':'日志配置读取成功',
@@ -46,16 +47,19 @@ all_service_code = {
     **file_operation_service_code,
 }
 
-def get_code_to_mean_code():
-    return {code: mean_code for code, mean_code in all_service_code.items()}
+def trans_mean_to_code():
+    return {mean: code for code, mean in all_service_code.items()}
 
 def get_service_code_map():
-    return all_service_code.update(get_code_to_mean_code())
+    temp_dict = deepcopy(all_service_code)
+    temp_dict.update(trans_mean_to_code())
+    return temp_dict
 
 def get_service_code(service_event: str) -> str:
     code = get_service_code_map().get(service_event)
     if not code:
         raise ValueError(f'服务事件 {service_event} 没有对应的服务代码')
+    return code
 
 def get_service_code_mean(service_code: str) -> str:
     mean_code = get_service_code_map().get(service_code)

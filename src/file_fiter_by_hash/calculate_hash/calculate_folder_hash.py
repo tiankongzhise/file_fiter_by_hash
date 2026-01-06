@@ -100,7 +100,7 @@ class CalculateFolderHash:
         )
 
     def __call__(self, hash_params: HashParams) -> HashResult:
-        self.folder_path = hash_params.folder_path
+        self.folder_path = hash_params.item_path
         self.algorithm = hash_params.algorithm
         return self.calculate_hash()
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # folder_path = pathlib.Path(r"L:\动物行为学描述文档\[魔穗字幕组][PoRO]らぶ2Quad 「完璧ドS淑女-エル～優雅に尻敷くフェイス＆ボッキ」[1280x720 x264 AAC]")
     folder_path = pathlib.Path(r"e:\B站视频下载")
     hash_params = HashParams(
-        folder_path=folder_path, algorithm=["sha1", "md5", "sha256"]
+        item_path=folder_path, algorithm=["sha1", "md5", "sha256"]
     )
     calculate_folder_hash = CalculateFolderHash()
     print(calculate_folder_hash(hash_params))

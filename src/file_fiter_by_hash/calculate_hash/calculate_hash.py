@@ -17,17 +17,18 @@ def calculate_file_hash(params: HashParams) -> HashResult:
     try:
         hash_result = {}
         for alg in params.algorithm:
-            hash_result[alg] = calculate_file_hash_base(params.folder_path, alg)
-            logger.info(code=get_service_code('文件hash计算成功'), message=f'文件 {params.folder_path.name} 哈希值 {alg} 计算完成，哈希值为 {hash_result[alg]}')
+            hash_result[alg] = calculate_file_hash_base(params.item_path, alg)
+            logger.info(code=get_service_code('文件hash计算成功'), message=f'文件 {params.item_path.name} 哈希值 {alg} 计算完成，哈希值为 {hash_result[alg]}')
     except Exception as e:
-        return HashResult(status='error', info=HashInfo(name=params.folder_path.name, type='file', algorithm=params.algorithm, size=params.folder_path.stat().st_size, hash_info={}), error_message=str(e))
-        logger.error(code=get_service_code('文件hash计算失败'), message=f'文件 {params.folder_path.name} 哈希值 {params.algorithm} 计算失败，错误信息为 {str(e)}')
+        logger.error(code=get_service_code('文件hash计算失败'), message=f'文件 {params.item_path.name} 哈希值 {params.algorithm} 计算失败，错误信息为 {str(e)}')
+        return HashResult(status='error', info=HashInfo(name=params.item_path.name, type='file', algorithm=params.algorithm, size=params.item_path.stat().st_size, hash_info={}), error_message=str(e))
+        
     
-    return HashResult(status='success', info=HashInfo(name=params.folder_path.name, type='file', algorithm=params.algorithm, size=params.folder_path.stat().st_size, hash_info=hash_result))
+    return HashResult(status='success', info=HashInfo(name=params.item_path.name, type='file', algorithm=params.algorithm, size=params.item_path.stat().st_size, hash_info=hash_result))
 
 
 if __name__ == '__main__':
-    params = HashParams(folder_path=pathlib.Path("k:\转储temp\动物行为学.7z.135"), algorithm=['sha1','md5','sha256'])
+    params = HashParams(item_path=pathlib.Path("k:\转储temp\动物行为学.7z.135"), algorithm=['sha1','md5','sha256'])
     md5 = calculate_file_hash(params)
     print(md5)
     target_md5= '967089a10i391049fb1a744be3dd6d26'

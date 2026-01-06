@@ -2,6 +2,7 @@ import sys
 from .sqlite_db import sql_logger_write,reset_db
 from ..schmeas import LoggerInfo
 from ..config import LoggerConfig
+from ..config.service_code import get_service_code_map
 
 class Logger:
     _singleton = None
@@ -102,6 +103,23 @@ class Logger:
         # 获取调用的函数名，<module> 表示是在全局代码中调用（非函数内）
         func_name = frame.f_code.co_name
         return file_name, line_no, func_name
+    @staticmethod
+    def _is_first_char_letter(text):
+        import re
+        pattern = r'^[A-Za-z]'
+        return bool(re.match(pattern, text))
+    
+    def _get_service_code(self,code:str):
+        # 写一个正则匹配code的第一位是否是26个字母
+        temp = get_service_code_map().get(code.upper())
+        if not temp:
+            raise ValueError(f'service code {code} not defined in service code map')
+        if self._is_first_char_letter(temp):
+            return temp
+        else:
+            return code
+        
+
     
     def debug(self,code:str,message:str):
         '''调试日志
@@ -111,6 +129,7 @@ class Logger:
         Returns:
             None
         '''
+        code = self._get_service_code(code)
         call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
@@ -128,6 +147,7 @@ class Logger:
         Returns:
             None
         '''
+        code = self._get_service_code(code)
         call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
@@ -145,6 +165,7 @@ class Logger:
         Returns:
             None
         '''
+        code = self._get_service_code(code)
         call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
@@ -162,6 +183,7 @@ class Logger:
         Returns:
             None
         '''
+        code = self._get_service_code(code)
         call_path = ''  
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()
@@ -179,6 +201,7 @@ class Logger:
         Returns:
             None
         '''
+        code = self._get_service_code(code)
         call_path = ''
         if self.is_call_path:
             file_name, line_no, func_name = self._get_call_info()

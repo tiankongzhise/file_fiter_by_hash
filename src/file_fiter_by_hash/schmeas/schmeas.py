@@ -16,7 +16,12 @@ class HashResult(BaseModel):
 
 # 将algorithm转换为小写再比较
 class HashParams(BaseModel):
-    folder_path: pathlib.Path = Field(description='文件夹路径')
+    '''哈希参数
+    args:
+        item_path: 文件或文件夹路径
+        algorithm: list[哈希算法] 可选值为sha1, sha256, md5
+    '''
+    item_path: pathlib.Path = Field(description='文件或文件夹路径')
     algorithm: list[Literal['sha1', 'sha256','md5']] = Field(default=['sha256'], description='哈希算法')
     
     @model_validator(mode='before')
