@@ -12,14 +12,14 @@ def is_zip_file(item:pathlib.Path):
     return item.suffix in zipped_suffix
 def is_normal_file(item:pathlib.Path):
     """
-    判断文件是否小于等于19GB
+    判断文件是否小于等于百度网盘允许上传的最大限制
     """
-    return item.is_file() and item.stat().st_size <= 1024 * 1024 * 1024 * 19
+    return item.is_file() and item.stat().st_size <= ClassifyConfig.baidu_pan_upload_max_size
 def is_big_file(item:pathlib.Path):
     """
-    判断文件是否大于19GB
+    判断文件是否大于百度网盘允许上传的最大限制
     """
-    return item.is_file() and item.stat().st_size > 1024 * 1024 * 1024*19
+    return item.is_file() and item.stat().st_size > ClassifyConfig.baidu_pan_upload_max_size
 
 def is_empty_folder(item:pathlib.Path):
     return item.is_dir() and not any(item.iterdir())
@@ -27,9 +27,9 @@ def is_empty_folder(item:pathlib.Path):
 
 def is_folder_oversize(item:list[pathlib.Path]):
     """
-    判断文件夹是否大于19GB
+    判断文件夹是否大于百度网盘允许上传的最大限制
     """
-    return sum([i.stat().st_size for i in item]) > 1024 * 1024 * 1024 * 19
+    return sum([i.stat().st_size for i in item]) > ClassifyConfig.baidu_pan_upload_max_size
 
 
 def is_folder_filecount_exceed(item:list[pathlib.Path]):
@@ -41,6 +41,12 @@ def is_folder_filecount_exceed(item:list[pathlib.Path]):
 
 
 def classify_item(item:list[PathLike]|PathLike):
+    '''
+    对文件或文件夹进行分类
+    @param item: 文件或文件夹路径, str or pathlib.Path
+    @return: 分类结果, dict, key为文件路径, value为分类结果
+    '''
+
     if not isinstance(item,list):
         item = [item]
     result = {}
@@ -71,3 +77,15 @@ def classify_item(item:list[PathLike]|PathLike):
             continue
         result[item] = 'normal_folder'
     return result
+
+
+def classify_folder(folder:PathLike):
+    '''
+    对文件夹进行分类,仅对第一层进行分类，不递归分类
+    @param folder: 文件夹路径, str or pathlib.Path
+    @return: 分类结果, list[dict], key为文件或文件夹路径, value为分类结果
+    '''
+    folder = pathlib.Path(folder)
+    if not folder.exists():
+        raise FileNotFoundError(f"folder {folder} not exists")
+    return [classify_item(i) for i in folder.glob("*")]

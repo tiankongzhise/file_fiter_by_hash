@@ -23,3 +23,6 @@ class ClassifyConfig:
     
     # 最大处理文件夹文件数量
     max_processing_folder_file_count: int = 200
+
+    # 百度网盘上传文件大小限制
+    baidu_pan_upload_max_size: int = 1024 * 1024 * 1024 *19

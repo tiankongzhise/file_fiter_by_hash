@@ -1,4 +1,4 @@
-from file_fiter_by_hash.service.classfiy_item import classify_item
+from file_fiter_by_hash.service.classfiy_service import classify_item
 from pathlib import Path
 
 
