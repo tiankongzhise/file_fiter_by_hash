@@ -1,7 +1,7 @@
 
 import pathlib
 from ..logger import logger
-from ..utils import calculate_big_folder_size,get_all_file_path
+from ..utils import calculate_folder_size,get_all_file_path
 from ..utils.file_operation import remove_to_pending_backup,remove_to_processing,delete_empty_folder,remove_to_panding_delete,remove_to_local_duplicate
 from ..utils.dto import transform_special_folder_list_to_dict
 from ..mysql_db.query_item import get_all_special_folder,query_item_by_hash,is_temp_hash_table
@@ -53,7 +53,7 @@ class FilterFile:
         special_folder_dict = transform_special_folder_list_to_dict(special_folder_squeue)
         for big_folder in self.big_folder_list:
             folder_name = list(big_folder.keys())[0]
-            folder_size = calculate_big_folder_size(big_folder[folder_name])
+            folder_size = calculate_folder_size(big_folder[folder_name])
             # 如果已经在临时hash表中，说明在之前的处理中已经处理过该文件夹，应当放入本地冲突解决文件夹。这种情况不应该发生，应当记录warning日志。
             if is_temp_hash_table(name = folder_name.name,size=folder_size):
                 self.logger.warning(f'大文件夹{folder_name}已经在临时hash表中，这是不正常的')

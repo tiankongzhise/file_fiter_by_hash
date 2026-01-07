@@ -12,3 +12,4 @@ def get_all_file_path(folder_path: pathlib.Path = None) -> list:
         elif item.is_dir():
             file_path.extend(get_all_file_path(item))
     return file_path
+

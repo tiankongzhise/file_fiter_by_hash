@@ -4,8 +4,7 @@ from .calculate_hash import calculate_file_hash_base
 from tqdm import tqdm
 from ..schmeas import HashParams, HashInfo, HashResult
 from ..logger import logger
-from ..config.service_code import get_service_code
-from ..utils import get_all_file_path, calculate_big_folder_size
+from ..config import get_service_code,ClassifyConfig
 
 
 class CalculateFolderHash:
@@ -13,11 +12,23 @@ class CalculateFolderHash:
         self.folder_path: pathlib.Path = None
         self.algorithm: str = None
         self.logger = logger
+        self.all_file_list: list = None
+
+
+    def _is_empty_folder(self) -> bool:
+        """判断文件夹是否为空"""
+        return not any(self.folder_path.iterdir())
+    
+    def _is_folder_filecount_exceed(self) -> bool:
+        """判断文件夹下文件数量是否超过100个"""
+        all_item = self.folder_path.rglob("*")
+        self.all_file_list = [item for item in all_item if item.is_file()]
+        return len(self.all_file_list) > ClassifyConfig.max_processing_folder_file_count
+
 
     def calculate_hash(self) -> str:
         """计算文件夹下所有文件的哈希值"""
-        all_file_list = get_all_file_path(self.folder_path)
-        if not all_file_list:
+        if self._is_empty_folder():
             self.logger.info(
                 code=get_service_code("空文件夹，无需计算"),
                 message=f"文件夹 {self.folder_path.name} 下没有文件",
@@ -29,13 +40,14 @@ class CalculateFolderHash:
                 ),
                 message="folder is empty",
             )
-        if len(all_file_list) > 100:
+                
+        if self._is_folder_filecount_exceed():
             try:
-                big_folder_size = calculate_big_folder_size(all_file_list)
+                big_folder_size = sum([item.stat().st_size for item in self.all_file_list])
             except Exception as e:
                 self.logger.error(
                     code=get_service_code("超大文件夹,统计文件夹大小失败"),
-                    message=f"文件夹 {self.folder_path.name} 下有 {len(all_file_list)} 个文件，文件大小总和计算失败，错误信息为 {str(e)}",
+                    message=f"文件夹 {self.folder_path.name} 下有 {len(self.all_file_list)} 个文件，文件大小总和计算失败，错误信息为 {str(e)}",
                 )
                 return HashResult(
                     status="error",
@@ -46,7 +58,7 @@ class CalculateFolderHash:
                 )
             self.logger.info(
                 code=get_service_code("超大文件夹,统计文件夹大小成功"),
-                message=f"文件夹 {self.folder_path.name} 下有 {len(all_file_list)} 个文件，文件大小总和为 {big_folder_size}，请确认是否需要计算",
+                message=f"文件夹 {self.folder_path.name} 下有 {len(self.all_file_list)} 个文件，文件大小总和为 {big_folder_size}，请确认是否需要计算",
             )
             return HashResult(
                 status="big_folder",
@@ -58,7 +70,7 @@ class CalculateFolderHash:
                 ),
                 message="文件加下小文件过多,请人工处理",
             )
-        sorted_file_path = sorted(all_file_list)
+        sorted_file_path = sorted(self.all_file_list)
         hash_result = {}
         size_list = []
         try:
@@ -72,11 +84,11 @@ class CalculateFolderHash:
                     hash_obj.update(calculate_file_hash_base(file_path, alg).encode())
                     size += pathlib.Path(file_path).stat().st_size
                 size_list.append(size)
-            hash_result[alg] = hash_obj.hexdigest().upper()
-            self.logger.info(
-                code=get_service_code("文件夹hash计算成功"),
-                message=f"文件夹 {self.folder_path.name} 下所有文件的 {alg} 哈希值为 {hash_result[alg]}",
-            )
+                hash_result[alg] = hash_obj.hexdigest().upper()
+                self.logger.info(
+                    code=get_service_code("文件夹hash计算成功"),
+                    message=f"文件夹 {self.folder_path.name} 下所有文件的 {alg} 哈希值为 {hash_result[alg]}",
+                )
             benchmark = size_list[0]
             for item in size_list:
                 if item != benchmark:

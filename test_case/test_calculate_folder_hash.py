@@ -17,8 +17,8 @@ def test_zip_hash():
 
 
 if __name__ == '__main__':
-    # folder_path = pathlib.Path(r"E:\迅雷下载")
-    # hash_params = HashParams(folder_path=folder_path, algorithm=['sha1','md5','sha256'])
-    # hash_result = calculate_folder_hash(hash_params)
-    # print(hash_result)
-    test_zip_hash()
+    folder_path = pathlib.Path(r"E:\迅雷下载")
+    hash_params = HashParams(item_path=folder_path, algorithm=['sha1','md5','sha256'])
+    hash_result = calculate_folder_hash(hash_params)
+    print(hash_result)
+    # test_zip_hash()

@@ -4,11 +4,11 @@ from file_fiter_by_hash.utils.file_operation import remove_to_processing
 from file_fiter_by_hash.utils.file_operation import remove_to_panding_delete
 from file_fiter_by_hash.utils.file_operation import delete_empty_folder
 from file_fiter_by_hash.utils.file_operation import remove_to_local_duplicate
-from file_fiter_by_hash.config import FileConfig
+from file_fiter_by_hash.config import ClassifyConfig
 
 
 def test_remove_to_pending_backup():
-    target_dir = FileConfig.backup_dir
+    target_dir = ClassifyConfig.backup_dir
     if not isinstance(target_dir, pathlib.Path):
         target_dir = pathlib.Path(target_dir)
 
@@ -54,7 +54,7 @@ def test_remove_to_pending_backup():
 
 
 def test_remove_to_processing():
-    target_dir = FileConfig.processing_dir
+    target_dir = ClassifyConfig.processing_dir
     if not isinstance(target_dir, pathlib.Path):
         target_dir = pathlib.Path(target_dir)
 
@@ -101,7 +101,7 @@ def test_remove_to_processing():
 
 
 def test_remove_to_pending_delete():
-    target_dir = FileConfig.duplicate_dir
+    target_dir = ClassifyConfig.duplicate_dir
     if not isinstance(target_dir, pathlib.Path):
         target_dir = pathlib.Path(target_dir)
 
@@ -157,7 +157,7 @@ def test_delete_empty_folder():
 
 
 def test_remove_to_local_duplicate():
-    target_dir = FileConfig.local_duplicate_dir
+    target_dir = ClassifyConfig.local_duplicate_dir
     if not isinstance(target_dir, pathlib.Path):
         target_dir = pathlib.Path(target_dir)
 

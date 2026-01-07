@@ -9,7 +9,7 @@ class LoggerConfig:
         console_logger_level: 控制台日志输出级别
         persistence_logger_level: 数据库日志记录级别
     '''
-    is_print_console = False
+    is_print_console = True
     is_persistence  = True
     is_call_path = True
     console_logger_level = 'info'

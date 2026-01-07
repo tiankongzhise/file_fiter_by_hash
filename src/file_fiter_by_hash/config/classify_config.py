@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass
-class FileConfig:
+class ClassifyConfig:
     # 记录需要处理的文件夹的源文件
     source_file:str = r''
     
@@ -20,3 +20,6 @@ class FileConfig:
     
     # 最大处理文件大小,单位字节
     max_processing_file_size: int = 1024 * 1024 * 100
+    
+    # 最大处理文件夹文件数量
+    max_processing_folder_file_count: int = 200

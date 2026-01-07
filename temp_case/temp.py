@@ -1,50 +1,54 @@
-import subprocess
-from pathlib import Path
-import locale
+import pathlib
+import datetime
+from functools import cache
 
-# 配置路径和参数
-source_folder = Path(r'K:\迅雷下载\VEC285')
-output_folder = Path(r'K:\测试文件夹')
-archive_name = 'VEC285.7z'
-password = 'H_X123456789'
-volume_size = '2048m'
+target_folder = pathlib.Path(r'C:\Users\hbc_thinkbook16\Documents\Tencent Files\2541600292')
 
-# 自动获取系统默认编码（中文 Windows 通常是 cp936）
-system_encoding = locale.getpreferredencoding()
+@cache
+def get_all_file_path(folder_path: pathlib.Path = None) -> list:
+    """返回文件夹下所有文件的绝对路径组成的list"""
+    file_path = []
+    for item in folder_path.iterdir():
+        if item.is_file():
+            # 路径的文本表示
+            file_path.append(item.as_posix())
+        elif item.is_dir():
+            file_path.extend(get_all_file_path(item))
+    return file_path
 
-# 确保输出目录存在
-output_folder.mkdir(parents=True, exist_ok=True)
 
-# 7-Zip 可执行文件路径（请根据实际安装位置调整）
-seven_zip_exe = Path(r'C:\Program Files (x86)\7-Zip\7z.exe')
+def my_func(item:pathlib.Path):
+    print(f'开始处理文件夹{item}')
+    beg_time = datetime.datetime.now()
+    temp_list = []
+    item_count = 0
+    folder_size = 0
+    for temp in item.iterdir():
+        if temp.is_file():
+            temp_list.append(temp.as_posix())
+        elif temp.is_dir():
+            temp_list.extend(get_all_file_path(temp))
+    for temp_item in temp_list:
+        temp = pathlib.Path(temp_item)
+        item_count += 1
+        folder_size += temp.stat().st_size
+    end_time = datetime.datetime.now()
+    print(f'文件夹{item}下有{item_count}个文件，占用{folder_size}字节，耗时{end_time - beg_time}')
+    return item_count, folder_size
 
-# 创建临时注释文件（包含密码）
-comment_file = output_folder / 'comment.txt'
-comment_file.write_text(password, encoding='utf-8')
+def pathlib_func(item:pathlib.Path):
+    print(f'开始处理文件夹{item}')
+    beg_time = datetime.datetime.now()
+    item_count = 0
+    folder_size = 0
+    for temp_item in item.rglob('*'):
+        if temp_item.is_file():
+            item_count += 1
+            folder_size += temp_item.stat().st_size
+    end_time = datetime.datetime.now()
+    print(f'文件夹{item}下有{item_count}个文件，占用{folder_size}字节，耗时{end_time - beg_time}')
+    return item_count, folder_size
 
-# 构建 7z 命令
-cmd = [
-    str(seven_zip_exe),
-    'a',
-    '-t7z',
-    '-mx=0',                    # 仅存储，不压缩
-    f'-v{volume_size}',         # 分卷大小
-    f'-p{password}',            # 设置密码
-    '-mhe=on',                  # 加密文件名
-    '-scsUTF-8',                # 注释编码
-    str(output_folder / archive_name),
-    str(source_folder)
-]
-
-# 执行命令
-try:
-    result = subprocess.run(cmd, check=True, capture_output=True, text=True, encoding=system_encoding)
-    print("✅ 压缩成功！")
-    print(result.stdout)
-except subprocess.CalledProcessError as e:
-    print("❌ 压缩失败：")
-    print(e.stderr)
-finally:
-    # 清理临时注释文件
-    if comment_file.exists():
-        comment_file.unlink()
+if __name__ == '__main__':
+    my_func(target_folder)
+    pathlib_func(target_folder)
