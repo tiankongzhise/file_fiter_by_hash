@@ -11,8 +11,7 @@ class LoggerConfig:
     '''
     is_print_console = True
     is_persistence  = True
-    is_call_path = True
-    console_logger_level = 'info'
+    console_logger_level = 'debug'
     persistence_logger_level = 'info'
     logger_level_map = {
         'debug': 10,
@@ -21,3 +20,4 @@ class LoggerConfig:
         'error': 40,
         'critical': 50,
     }
+    logger_status = ['success', 'fail']

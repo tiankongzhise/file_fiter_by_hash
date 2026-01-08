@@ -219,5 +219,3 @@ class Logger:
             None
         '''
         reset_db()
-    
-logger = Logger()

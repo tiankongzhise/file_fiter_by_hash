@@ -2,13 +2,13 @@ from datetime import timezone,datetime
 
 
 # ✅ 抽离公共工具方法，可全局复用
-def get_current_timestamp(ms: bool = False) -> int:
-    """获取当前时间戳，默认秒级，ms=True则返回毫秒级"""
+def get_current_timestamp(ms: bool = True) -> int:
+    """获取当前时间戳，默认毫秒级，ms=False则返回秒级"""
     if ms:
         return int(datetime.now().timestamp() * 1000)
     return int(datetime.now().timestamp())
 
-def timestamp_to_local_time(ts: int, fmt: str = "%Y-%m-%d %H:%M:%S", ms: bool = False) -> str | None:
+def timestamp_to_local_time(ts: int, fmt: str = "%Y-%m-%d %H:%M:%S", ms: bool = True) -> str | None:
     """
     时间戳转本地时区格式化时间
     :param ts: 时间戳(秒/毫秒)

@@ -1,7 +1,5 @@
-from .logger import logger
-from .sqlite_db import query_logger
+from .logger import create_logger
 
 __all__ = [
-    'logger',
-    'query_logger',
+    "create_logger"
 ]
