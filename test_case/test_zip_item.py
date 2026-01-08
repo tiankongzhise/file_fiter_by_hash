@@ -1,5 +1,5 @@
-from file_fiter_by_hash.service.zip_item import zip_item
-from file_fiter_by_hash.calculate_hash import calculate_folder_hash,calculate_file_hash,HashParams
+from file_fiter_by_hash.service.zip_serice import zip_item
+from file_fiter_by_hash.calculate_hash_service import calculate_folder_hash,calculate_file_hash,HashParams
 from pathlib import Path
 
 source_file_path =  Path(r'e:\QQDownload\[qiporn.com更新30分钟完整版]太阳花女王刘乔安援交视频12分30秒尝鲜版\太阳花女王援交视频12分30秒尝鲜版.mp4')

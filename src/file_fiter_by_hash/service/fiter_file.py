@@ -5,7 +5,7 @@ from ..utils import calculate_folder_size,get_all_file_path
 from ..utils.file_operation import remove_to_pending_backup,remove_to_processing,delete_empty_folder,remove_to_panding_delete,remove_to_local_duplicate
 from ..utils.dto import transform_special_folder_list_to_dict
 from ..mysql_db.query_item import get_all_special_folder,query_item_by_hash,is_temp_hash_table
-from ..calculate_hash import calculate_file_hash,calculate_folder_hash
+from ..calculate_hash_service import calculate_file_hash,calculate_folder_hash
 
 class FilterFile:
     def __init__(self, file_path: str|pathlib.Path):

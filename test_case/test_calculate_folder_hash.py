@@ -1,4 +1,4 @@
-from file_fiter_by_hash.calculate_hash import calculate_folder_hash,calculate_file_hash
+from file_fiter_by_hash.calculate_hash_service import calculate_folder_hash,calculate_file_hash
 import pathlib
 from file_fiter_by_hash.schmeas import HashParams
 
