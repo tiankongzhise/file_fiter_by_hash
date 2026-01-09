@@ -57,7 +57,7 @@ class CalculateFolderHash:
                     message="folder size calculate error",
                 )
             self.logger.info(
-                message=f"文件夹 {self.folder_path.name} 下有 {len(self.all_file_list)} 个文件，文件大小总和为 {big_folder_size}，请确认是否需要计算",
+                message=f"文件夹 {self.folder_path} 下有 {len(self.all_file_list)} 个文件，文件大小总和为 {big_folder_size}，请确认是否需要计算",
             )
             return HashResult(
                 status="big_folder",

@@ -13,11 +13,11 @@ def simple_test():
     # test_new_logger.critical("This is a test log message.")
     # test_new_logger.debug("This is a test log message.")
     manager = SQLiteEngineManager()
-    engine = manager.get_engine_by_db('logger.db')
+    engine = manager.get_engine_by_db('logger')
 
     print('\n 数据库查询结果 \n')
     with Session(engine) as session:
-        stmt = select(LoggerRecord).where(LoggerRecord.logger_name == "test_new_logger").order_by(LoggerRecord.id.asc())
+        stmt = select(LoggerRecord).order_by(LoggerRecord.id.asc())
         result = session.scalars(stmt).all()
         for row in result:
             print(row)

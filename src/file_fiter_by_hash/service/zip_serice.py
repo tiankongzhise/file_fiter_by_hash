@@ -135,9 +135,7 @@ def unzip_item(zip_path: PathLike, target_dir: PathLike = None, password: str | 
                 extract_to = target_dir / root_prefix
             else:
                 extract_to = target_dir / zip_path.stem
-
-            extract_to.mkdir(parents=True, exist_ok=True)
-            zipf.extractall(extract_to)
+            zipf.extractall(target_dir)
             logger.info(message=f"解压 {zip_path} 到 {extract_to} 成功")
             return extract_to
     except Exception as e:
