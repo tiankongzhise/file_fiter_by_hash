@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run python -c \"\nfrom src.file_fiter_by_hash.control.filter_process import file_process\nresult = file_process\\(\\)\nprint\\(result\\)\n\")",
+      "Bash(uv run python -c:*)"
+    ]
+  }
+}

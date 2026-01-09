@@ -11,7 +11,7 @@ class HashInfo(BaseModel):
 
 class HashResult(BaseModel):
     status: Literal['success', 'error', 'empty','big_folder']
-    info: HashInfo
+    info: HashInfo | None = None
     message: str = Field(default='', description='附加信息')
 
 # 将algorithm转换为小写再比较
