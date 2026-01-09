@@ -2,7 +2,9 @@
 import pathlib
 from os import PathLike
 from ..config import zipped_suffix,ClassifyConfig
+from ..logger import create_logger
 
+logger = create_logger("classify_service")
 
 
 def is_zip_file(item:pathlib.Path):

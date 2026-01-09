@@ -6,7 +6,7 @@ def create_logger(
     service_name: str,
     status_map: dict | None = None,
     extra_info_map: dict | None = None,
-):
+) -> Logger:
     logger = Logger(logger_name)
     logger.set_service(service_name)
     logger.set_status_map(status_map)

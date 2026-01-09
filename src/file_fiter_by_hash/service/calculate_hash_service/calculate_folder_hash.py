@@ -2,10 +2,11 @@ import pathlib
 import hashlib
 from .calculate_hash import calculate_file_hash_base
 from tqdm import tqdm
-from ..schmeas import HashParams, HashInfo, HashResult
-from ..logger import logger
-from ..config import get_service_code,ClassifyConfig
+from ...schmeas import HashParams, HashInfo, HashResult
+from ...logger import create_logger
+from ...config import ClassifyConfig
 
+logger = create_logger("calculate_hash_service")
 
 class CalculateFolderHash:
     def __init__(self):
@@ -30,8 +31,7 @@ class CalculateFolderHash:
         """计算文件夹下所有文件的哈希值"""
         if self._is_empty_folder():
             self.logger.info(
-                code=get_service_code("空文件夹，无需计算"),
-                message=f"文件夹 {self.folder_path.name} 下没有文件",
+                message=f"文件夹 {self.folder_path} 下没有文件",
             )
             return HashResult(
                 status="empty",
@@ -46,7 +46,7 @@ class CalculateFolderHash:
                 big_folder_size = sum([item.stat().st_size for item in self.all_file_list])
             except Exception as e:
                 self.logger.error(
-                    code=get_service_code("超大文件夹,统计文件夹大小失败"),
+                    extra_info="超大文件夹,统计文件夹大小失败",
                     message=f"文件夹 {self.folder_path.name} 下有 {len(self.all_file_list)} 个文件，文件大小总和计算失败，错误信息为 {str(e)}",
                 )
                 return HashResult(
@@ -57,7 +57,7 @@ class CalculateFolderHash:
                     message="folder size calculate error",
                 )
             self.logger.info(
-                code=get_service_code("超大文件夹,统计文件夹大小成功"),
+                extra_info="超大文件夹,统计文件夹大小成功",
                 message=f"文件夹 {self.folder_path.name} 下有 {len(self.all_file_list)} 个文件，文件大小总和为 {big_folder_size}，请确认是否需要计算",
             )
             return HashResult(
@@ -86,19 +86,19 @@ class CalculateFolderHash:
                 size_list.append(size)
                 hash_result[alg] = hash_obj.hexdigest().upper()
                 self.logger.info(
-                    code=get_service_code("文件夹hash计算成功"),
+                    extra_info="文件夹hash计算成功",
                     message=f"文件夹 {self.folder_path.name} 下所有文件的 {alg} 哈希值为 {hash_result[alg]}",
                 )
             benchmark = size_list[0]
             for item in size_list:
                 if item != benchmark:
                     self.logger.warning(
-                        code=get_service_code("文件夹hash计算文件大小不一致"),
+                        extra_info="文件夹hash计算文件大小不一致",
                         message=f"文件夹{self.folder_path.name}下hash计算出现文件大小不一致，基准大小为{benchmark}，当前文件大小为{item}",
                     )
         except Exception as e:
             self.logger.error(
-                code=get_service_code("文件夹hash计算失败"),
+                extra_info="文件夹hash计算失败",
                 message=f"文件夹 {self.folder_path.name} 下所有文件的 {alg} 哈希值计算失败，错误信息为 {str(e)}",
             )
         return HashResult(

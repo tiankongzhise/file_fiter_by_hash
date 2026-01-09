@@ -3,8 +3,11 @@ import pyzipper
 from os import PathLike
 import pathlib
 import datetime
-from ..logger import logger
+from ..logger import create_logger
 from ..config.salt import salt
+from ..config.classify_config import ClassifyConfig
+
+logger = create_logger("zip_service")
 
 def add_self_salt(self):
     self.salt = salt[self.salt_length]
@@ -73,9 +76,52 @@ def zip_item(source_item:PathLike,target_dir:PathLike,password:str|None=None,com
                     _add_directory_to_zip(zipf, source_item)
                 else:
                     raise ValueError(f"不支持的源路径类型: {source_item}")
-                logger.info(code='压缩操作成功，不区分文件或文件夹',message=f"zip {source_item} to {ziped_item} success")
+                logger.info(message=f"zip {source_item} to {ziped_item} success")
                 return ziped_item
         except Exception as e:
+            logger.error(message=f"zip {source_item} to {ziped_item} failed: {e}")
             if ziped_item.exists():
                 ziped_item.unlink()
             raise e
+
+def unzip_item(zip_path: PathLike, target_dir: PathLike = None, password: str | None = None) -> pathlib.Path:
+    """
+    解压ZIP文件到目标目录
+
+    Args:
+        zip_path: ZIP文件路径
+        target_dir: 目标目录，默认为 ClassifyConfig.unzip_folder
+        password: 解压密码（可选）
+
+    Returns:
+        解压后的根目录路径
+    """
+    zip_path = pathlib.Path(zip_path)
+    if target_dir is None:
+        target_dir = pathlib.Path(ClassifyConfig.unzip_folder)
+    else:
+        target_dir = pathlib.Path(target_dir)
+
+    if not zip_path.exists():
+        raise FileNotFoundError(f"ZIP文件不存在: {zip_path}")
+
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        with pyzipper.AESZipFile(zip_path, 'r') as zipf:
+            if password:
+                zipf.setpassword(password.encode('utf-8'))
+
+            # 获取ZIP内的根目录名作为解压后的顶层目录
+            all_names = zipf.namelist()
+            if all_names:
+                root_prefix = all_names[0].split('/')[0]
+                extract_to = target_dir / root_prefix
+            else:
+                extract_to = target_dir / zip_path.stem
+            zipf.extractall(target_dir)
+            logger.info(message=f"解压 {zip_path} 到 {extract_to} 成功")
+            return extract_to
+    except Exception as e:
+        logger.error(message=f"解压 {zip_path} 失败: {e}")
+        raise e
