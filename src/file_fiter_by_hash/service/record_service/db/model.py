@@ -28,7 +28,17 @@ class ProcessRecord(RecordServiceModel):
     process_status: Mapped[str] = mapped_column(String(32))
     process_result: Mapped[str] = mapped_column(String(10))
     zipped_path: Mapped[str] = mapped_column(Text, nullable=True)
+    zipped_size: Mapped[int] = mapped_column(Integer)
+    zipped_md5: Mapped[str] = mapped_column(String(32))
+    zipped_sha1: Mapped[str] = mapped_column(String(40))
+    zipped_sha256: Mapped[str] = mapped_column(String(64))
+    other_unzip_info: Mapped[dict] = mapped_column(JSON, nullable=True)
     unzip_path: Mapped[str] = mapped_column(Text, nullable=True)
+    unzip_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    unzip_md5: Mapped[str] = mapped_column(String(32), nullable=True)
+    unzip_sha1: Mapped[str] = mapped_column(String(40), nullable=True)
+    unzip_sha256: Mapped[str] = mapped_column(String(64), nullable=True)
+    other_unzip_info: Mapped[dict] = mapped_column(JSON, nullable=True)
     is_compiled: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
