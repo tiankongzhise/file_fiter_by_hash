@@ -42,9 +42,9 @@ class MySQLEngineManager:
         database = db_name or os.getenv('MYSQL_DATABASE')
         return f'mysql+pymysql://{user_name}:{password}@{host}:{port}/{database}'
 
-    def register_engine(self,module_name:str, db_name:str, engine_config = None):
+    def register_engine(self,module_name:str, db_name:str=None, engine_config = None):
         # sqlalchemy使用pymysql连接mysql
-        engine_url = self._get_engine_url()
+        engine_url = self._get_engine_url(db_name)
         if engine_config:
             self.engine[module_name] = create_engine(engine_url, **engine_config)
         else:
