@@ -40,7 +40,7 @@ class ProcessRecord(RecordServiceModel):
     unzip_sha256: Mapped[str] = mapped_column(String(64), nullable=True)
     other_unzip_info: Mapped[dict] = mapped_column(JSON, nullable=True)
     is_compiled: Mapped[bool] = mapped_column(Boolean, default=False)
-
+    fail_reason: Mapped[dict] = mapped_column(JSON, nullable=True)
 
     __table_args__ = (
         UniqueConstraint('source_path', name='uix_source_path'),
